@@ -6,7 +6,7 @@ class ExprTest {
     val two = Expr.Const(2.0)
 
     @Test
-    fun `#eval should perform the basic algebraic operations`() {
+    fun `#eval should perform basic algebraic operations`() {
         val sum = Expr.Add(one, two).eval()
         assertEquals(3.0, sum)
 
@@ -19,7 +19,7 @@ class ExprTest {
         val div = Expr.Divide(one, two).eval()
         assertEquals(0.5, div)
 
-        val exp = Expr.Sqrt(two, two).eval()
-        assertEquals(4.0, exp)
+        val sqrt = Expr.Sqrt(Expr.Const(4.0)).eval()
+        assertEquals(2.0, sqrt)
     }
 }

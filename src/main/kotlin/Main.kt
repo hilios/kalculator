@@ -7,7 +7,7 @@ import kotlin.system.exitProcess
  */
 tailrec fun runLoop(state: Stack<Expr>) {
     print("> ")
-    val input = readLine()?.split("""\s+""".toRegex()) ?: emptyList()
+    val input = readLine()?.split("""\s+""".toRegex()) ?: exitProcess(1)
     val result = PostfixCalculator(state).eval(*input.filterNot { s -> s.isEmpty() }.toTypedArray())
 
     val stack = when(result) {
@@ -23,7 +23,7 @@ tailrec fun runLoop(state: Stack<Expr>) {
         println(result.value.show())
     }
 
-    println("stack: ${stack.map { expr -> expr.show() }.mkString(", ")}")
+    println("stack: ${stack.map { expr -> expr.show() }.mkString(" ")}")
     runLoop(stack)
 }
 

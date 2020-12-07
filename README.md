@@ -5,7 +5,9 @@
 ## Build & Run
 
 ```bash
-$ gradle jar
+$ gradle test jar
+BUILD SUCCESSFUL in 954ms
+5 actionable tasks: 2 executed, 3 up-to-date
 $ java -jar build/libs/kalculator-0.1.jar
 ```
 

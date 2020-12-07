@@ -1,6 +1,6 @@
 import org.junit.jupiter.api.Test
 
-class CalculatorTest {
+class PostfixCalculatorTest {
     @Test
     fun `it should do something`() {}
 }

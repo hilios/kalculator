@@ -1,5 +1,4 @@
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class StackTest {
 
@@ -36,7 +35,15 @@ class StackTest {
     }
 
     @Test
-    fun `#append should append the elements from one stack into another`() {
+    fun `#map should return a new stack`() {
+        val ints = Stack.Elem(3, Stack.Elem(2, Stack.Elem(1, Stack.Empty)))
+        val strs = ints.map { i -> i.toString() }
+
+        assertEquals(Stack.Elem("3", Stack.Elem("2", Stack.Elem("1", Stack.Empty))), strs)
+    }
+
+    @Test
+    fun `#append should return an stack with the elements from one stack on top of another`() {
         val x = Stack.Elem(2, Stack.Elem(1, Stack.Empty))
         val y = Stack.Elem(4, Stack.Elem(3, Stack.Empty))
         val stack = x.append(y)
@@ -64,6 +71,16 @@ class StackTest {
     }
 
     @Test
+    fun `#get should return the value at the given position from the top of the stack or null if out of bounds`() {
+        val stack = Stack.Elem(3, Stack.Elem(2, Stack.Elem(1, Stack.Empty)))
+
+        assertEquals(3, stack.get(0))
+        assertEquals(2, stack.get(1))
+        assertEquals(1, stack.get(2))
+        assertEquals(null, stack.get(5))
+    }
+
+    @Test
     fun `#take should return the first N elements on the top of the stack`() {
         val stack = Stack.Elem(3, Stack.Elem(2, Stack.Elem(1, Stack.Empty)))
         val take2 = stack.take(2)
@@ -82,8 +99,10 @@ class StackTest {
     @Test
     fun `#drop should remove the first N elements on the top of the stack and return the rest`() {
         val stack = Stack.Elem(3, Stack.Elem(2, Stack.Elem(1, Stack.Empty)))
+        val drop1 = stack.drop(1)
         val drop2 = stack.drop(2)
 
+        assertEquals(Stack.Elem(2, Stack.Elem(1, Stack.Empty)), drop1)
         assertEquals(Stack.Elem(1, Stack.Empty), drop2)
     }
 
@@ -103,19 +122,27 @@ class StackTest {
         assertEquals(0, Stack.Empty.length())
     }
 
-    // Custom string representation
     @Test
-    fun `#show should return a string in the reverse order of the stack`() {
+    fun `#isEmpty should return true if stack as no elements or true otherwise`() {
         val stack = Stack.Elem(3, Stack.Elem(2, Stack.Elem(1, Stack.Empty)))
+        val empty = Stack.Empty
 
-        assertEquals("1 2 3", stack.show())
+        assertFalse(stack.isEmpty())
+        assertTrue(empty.isEmpty())
     }
 
-    @Test
-    fun `it should return a string in the reverse order of the stack (2)`() {
-        val input = "1 2 3 * 5 + * * 6 5"
-        val stack = Stack.from(input.split(" "))
-
-        assertEquals(input, stack.show())
-    }
+//    @Test
+//    fun `#show should return a string in the reverse order of the stack`() {
+//        val stack = Stack.Elem(3, Stack.Elem(2, Stack.Elem(1, Stack.Empty)))
+//
+//        assertEquals("1 2 3", stack.show())
+//    }
+//
+//    @Test
+//    fun `it should return a string in the reverse order of the stack (2)`() {
+//        val input = "1 2 3 * 5 + * * 6 5"
+//        val stack = Stack.from(input.split(" "))
+//
+//        assertEquals(input, stack.show())
+//    }
 }

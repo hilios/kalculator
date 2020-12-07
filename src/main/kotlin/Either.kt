@@ -3,27 +3,35 @@
  */
 sealed class Either<out A, out B> {
 
-    fun <C> map(fb: (B) -> C): Either<A, C> =
-        flatMap { b -> Right(fb(b)) }
+    fun <C> map(f: (B) -> C): Either<A, C> =
+        flatMap { b -> Right(f(b)) }
 
-    fun <C> leftMap(fa: (A) -> C): Either<C, B> = when(this) {
+    fun <C> leftMap(f: (A) -> C): Either<C, B> = when(this) {
         is Right -> Right(this.value)
-        is Left -> Left(fa(this.value))
+        is Left -> Left(f(this.value))
+    }
+
+    fun get(): B? = when(this) {
+        is Right -> this.value
+        is Left -> null
     }
 
     companion object {
-        fun <A> catchExceptions(fn: () -> A): Either<Throwable, A> = try {
-            Right(fn())
+        fun <A> catchExceptions(f: () -> A): Either<Throwable, A> = try {
+            Right(f())
         } catch (ex: Exception) {
             Left(ex)
         }
+
+        fun <A, B> fromOption(b: B?, ifNull: () -> A): Either<A, B> =
+            b?.let { v -> Right(v) } ?: Left(ifNull())
     }
 }
 data class Right<A, out B>(val value: B): Either<A, B>()
 data class Left<out A, B>(val value: A): Either<A, B>()
 
-fun <A, B, C> Either<A, B>.flatMap(fn: (B) -> Either<A, C>): Either<A, C> = when (this) {
-    is Right -> fn(this.value)
+fun <A, B, C> Either<A, B>.flatMap(f: (B) -> Either<A, C>): Either<A, C> = when (this) {
+    is Right -> f(this.value)
     is Left -> Left(this.value)
 }
 

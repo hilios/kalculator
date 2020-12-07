@@ -1,18 +1,29 @@
+import CalculatorError.Companion.show
+import Expr.Companion.show
 import kotlin.system.exitProcess
 
+/**
+ * Evaluate the input and execute the side-effects.
+ */
 tailrec fun runLoop(state: Stack<Expr>) {
     print("> ")
     val input = readLine()?.split("""\s+""".toRegex()) ?: emptyList()
-    val stack = input.fold(state, { current, str ->
-        PostfixCalculator(current)
-            .eval(str)
-            .fold({ e ->
-                println("operator $str (position: 0): $e")
-                current
-            }, { r -> r})
-    })
+    val result = PostfixCalculator(state).eval(*input.toTypedArray())
 
-    println("stack: $stack")
+    val stack = when(result) {
+        is Right -> result.value
+        is Left -> when(val left = result.value) {
+            is TraceableError -> left.stack
+            else -> Stack.Empty
+        }
+    }
+
+    // print errors
+    if(result is Left) {
+        println(result.value.show())
+    }
+
+    println("stack: ${stack.map { expr -> expr.show() }.mkString(", ")}")
     runLoop(stack)
 }
 
@@ -26,7 +37,7 @@ fun main(args: Array<String>) {
     
     Operations: +, -, *, /, sqrt, clean, undo
     Exit: Ctrl + C
-    
+
     """.trimIndent())
 
     runLoop(Stack.Empty)

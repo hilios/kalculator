@@ -1,3 +1,4 @@
+import Expr.Companion.show
 import kotlin.test.*
 
 class ExprTest {
@@ -15,6 +16,9 @@ class ExprTest {
 
         val minus = Expr.Subtract(two, one).eval()
         assertEquals(1.0, minus)
+
+        val minusOne = Expr.Subtract(one, two).eval()
+        assertEquals(-1.0, minusOne)
 
         val times = Expr.Multiply(two, two).eval()
         assertEquals(4.0, times)
@@ -43,5 +47,29 @@ class ExprTest {
 
         val sqrt = Expr.Sqrt(neg).eval()
         assertEquals(Double.NaN, sqrt)
+
+        val nans = Expr.Add(nan, nan).eval()
+        assertEquals(Double.NaN, nans)
+
+        val wtf = Expr.Add(nan, inf).eval()
+        assertEquals(Double.NaN, wtf)
+    }
+
+    @Test
+    fun `#show should return evaluate an expresion before rendering`() {
+        val three = Expr.Add(one, two).show()
+        assertEquals("3", three)
+    }
+
+    @Test
+    fun `#show should return a single digit when the number as no decimals`() {
+        val one = Expr.Const(1.0).show()
+        assertEquals("1", one)
+
+        val half = Expr.Const(0.5).show()
+        assertEquals("0.5", half)
+
+        val pi = Expr.Const(Math.PI).show()
+        assertEquals("3.1415926536", pi)
     }
 }

@@ -6,7 +6,7 @@ sealed class CalculatorError {
         override fun CalculatorError.show(): String = when(this) {
             is TraceableError -> "operator $operation (position: $position): ${cause.show()}"
             is InputError -> "input not valid"
-            is InsufficientParametersError -> "insufficient parameter"
+            is InsufficientParametersError -> "insufficient parameters"
         }
     }
 }

@@ -4,18 +4,17 @@ tailrec fun runLoop(state: Stack<Expr>) {
     print("> ")
     val input = readLine()?.split("""\s+""".toRegex()) ?: emptyList()
     val stack = input.fold(state, { current, str ->
-        PostfixCalculator.eval(current, str)
+        PostfixCalculator(current)
+            .eval(str)
             .fold({ e ->
                 println("operator $str (position: 0): $e")
                 current
             }, { r -> r})
     })
 
-    println("stack: ${stack.map { expr -> expr.eval() }.mkString(" ")}")
+    println("stack: $stack")
     runLoop(stack)
 }
-
-// 1 2 3 * 5 + * * 6 5
 
 fun main(args: Array<String>) {
     println("""
@@ -27,6 +26,7 @@ fun main(args: Array<String>) {
     
     Operations: +, -, *, /, sqrt, clean, undo
     Exit: Ctrl + C
+    
     """.trimIndent())
 
     runLoop(Stack.Empty)

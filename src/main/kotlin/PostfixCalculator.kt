@@ -1,55 +1,58 @@
-object PostfixCalculator {
+data class PostfixCalculator(private val memory: Stack<Expr> = Stack.Empty) {
 
-    private fun <A> requireOne(stack: Stack<A>): Either<CalculatorError, A> = when(stack) {
-        is Stack.Elem -> Right(stack.head)
-        is Stack.Empty -> Left(InsufficientParametersError)
-    }
-    private fun <A> requirePair(stack: Stack<A>): Either<CalculatorError, Pair<A, A>> {
-        val ea0 = Either.fromOption(stack.get(0), { InsufficientParametersError })
-        val ea1 = Either.fromOption(stack.get(1), { InsufficientParametersError })
-        return ea0.flatMap { a0 ->
-            ea1.map { a1 -> Pair(a0, a1) }
-        }
+    private fun undo(expr: Expr): Stack<Expr> = when(expr) {
+        is Expr.Const -> Stack.Empty
+        is Expr.Add -> Stack.one(expr.x).add(expr.y)
+        is Expr.Subtract -> Stack.one(expr.x).add(expr.y)
+        is Expr.Multiply -> Stack.one(expr.x).add(expr.y)
+        is Expr.Divide -> Stack.one(expr.x).add(expr.y)
+        is Expr.Sqrt -> Stack.one(expr.x)
     }
 
-    fun eval(stack: Stack<Expr>, input: String): Either<CalculatorError, Stack<Expr>> = when(input) {
-        "+" -> requirePair(stack).map { (x, y) ->
-            stack.drop(2).add(Expr.Add(x, y))
+    fun eval(input: String): Either<CalculatorError, Stack<Expr>> = when(input) {
+        "+" -> requirePair(memory).map { (y, x) ->
+            memory.drop(2).add(Expr.Add(x, y))
         }
-        "-" -> requirePair(stack).map { (x, y) ->
-            stack.drop(2).add(Expr.Subtract(x, y))
+        "-" -> requirePair(memory).map { (y, x) ->
+            memory.drop(2).add(Expr.Subtract(x, y))
         }
-        "*" -> requirePair(stack).map { (x, y) ->
-            stack.drop(2).add(Expr.Multiply(x, y))
+        "*" -> requirePair(memory).map { (y, x) ->
+            memory.drop(2).add(Expr.Multiply(x, y))
         }
-        "/" -> requirePair(stack).map { (x, y) ->
-            stack.drop(2).add(Expr.Divide(x, y))
+        "/" -> requirePair(memory).map { (y, x) ->
+            memory.drop(2).add(Expr.Divide(x, y))
         }
-        "sqrt" -> requireOne(stack).map { x ->
-            stack.drop(1).add(Expr.Sqrt(x))
+        "sqrt" -> requireOne(memory).map { x ->
+            memory.drop(1).add(Expr.Sqrt(x))
         }
-        "undo" -> requireOne(stack).map { x ->
-            stack.drop(1).append(undo(x))
+        "undo" -> requireOne(memory).map { x ->
+            memory.drop(1).append(undo(x))
         }
         "clear" ->
             Right(Stack.Empty)
         else ->
             Either.catchExceptions { Expr.Const(input.toDouble()) }
                 .leftMap { InputError(input) }
-                .map { e -> stack.add(e) }
+                .map { e -> memory.add(e) }
     }
 
-    fun undo(expr: Expr): Stack<Expr> = when(expr) {
-        is Expr.Const -> Stack.Empty
-        is Expr.Add -> Stack.one(expr.y).add(expr.x)
-        is Expr.Subtract -> Stack.one(expr.y).add(expr.x)
-        is Expr.Multiply -> Stack.one(expr.y).add(expr.x)
-        is Expr.Divide -> Stack.one(expr.y).add(expr.x)
-        is Expr.Sqrt -> Stack.one(expr.x)
+    override fun toString(): String = memory.map { expr -> expr.eval() }.mkString(" ")
+
+    companion object {
+        private fun <A> requireOne(stack: Stack<A>): Either<CalculatorError, A> = when(stack) {
+            is Stack.Elem -> Right(stack.head)
+            is Stack.Empty -> Left(InsufficientParametersError)
+        }
+        private fun <A> requirePair(stack: Stack<A>): Either<CalculatorError, Pair<A, A>> {
+            val ea0 = Either.fromOption(stack.get(0), { InsufficientParametersError })
+            val ea1 = Either.fromOption(stack.get(1), { InsufficientParametersError })
+            return ea0.flatMap { a0 ->
+                ea1.map { a1 -> Pair(a0, a1) }
+            }
+        }
     }
 }
 
 sealed class CalculatorError
 data class InputError(val input: String) : CalculatorError()
-data class MathError(val throwable: Throwable) : CalculatorError()
 object InsufficientParametersError : CalculatorError()

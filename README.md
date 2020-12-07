@@ -9,6 +9,8 @@
 
 ## Build & Run
 
+Build and automation tasks via [Gradle](https://gradle.org/) scripts:
+
 ```bash
 $ gradle test jar
 BUILD SUCCESSFUL in 954ms

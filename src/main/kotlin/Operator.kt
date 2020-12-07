@@ -80,7 +80,7 @@ object PostfixCalculator : Calculator<Operator>, Parser<Operator>, Show<Operator
             stack.drop(1).add(sqrt(num))
         }
 
-        is Number -> Right(stack.add(this.value))
+        is Number -> Right(stack.add(value))
 
         is Clear -> Right(Stack.Empty)
 

@@ -46,6 +46,7 @@ fun <A, B> Stack<A>.fold(init: B, f: (B, A) -> B): B {
 
     return reduce(this, init)
 }
+
 fun <A> Stack<A>.add(elem: A): Stack<A> = Stack.Elem(elem, this)
 
 fun <A> Stack<A>.pop(): Pair<A?, Stack<A>> = when (this) {

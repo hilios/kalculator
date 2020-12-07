@@ -20,10 +20,10 @@ class StackTest {
 
     @Test
     fun `it should create an instance from any iterable in the reverse order LIFO`() {
-        val list = listOf(1, 2, 3)
+        val list = listOf(4, 5 ,6)
         val stack = Stack.from(list)
 
-        assertEquals(Stack.Elem(3, Stack.Elem(2, Stack.Elem(1, Stack.Empty))), stack)
+        assertEquals(Stack.Elem(6, Stack.Elem(5, Stack.Elem(4, Stack.Empty))), stack)
     }
 
     // The Monoid commutative laws
@@ -58,6 +58,16 @@ class StackTest {
 
         assertEquals(x.append(y), y.append(x))
         assertEquals(Stack.Empty, Stack.Empty.append(Stack.Empty))
+    }
+
+    @Test
+    fun `#fold should return the accumulate result of all elements of the stack`() {
+        val ints = Stack.Elem(3, Stack.Elem(2, Stack.Elem(1, Stack.Empty)))
+        val str = ints.fold("", { acc, i ->
+            if (acc.isBlank()) "$i" else "$acc $i"
+        })
+
+        assertEquals("3 2 1", str)
     }
 
     // Last in first out operations

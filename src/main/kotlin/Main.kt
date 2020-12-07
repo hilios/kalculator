@@ -15,12 +15,9 @@ import kotlin.system.exitProcess
 tailrec fun runLoop(state: Stack<Double>) {
     print("> ")
     val input = readLine()?.split(" ") ?: emptyList()
-
-    println(">> $input")
-
-    val stack = Stack.from(input).fold(state, { current, i ->
-        i.parse(PostfixCalculator)
-            .leftMap { InputError("Invalid input: $i") }
+    val stack = input.fold(state, { current, str ->
+        str.parse(PostfixCalculator)
+            .leftMap { InputError("Invalid input: $str") }
             .flatMap { op -> op.eval(current)  }
             .fold({ e -> println("Failed: $e"); current }, { r -> r })
     })

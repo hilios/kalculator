@@ -91,3 +91,6 @@ fun <A> Stack<A>.isEmpty(): Boolean = when(this) {
     is Stack.Empty -> true
     else -> false
 }
+
+fun <A> Stack<A>.mkString(separator: String = ""): String =
+    this.fold("", { accum, v -> if (accum.isBlank()) "$v" else "$v$separator$accum"})

@@ -141,18 +141,20 @@ class StackTest {
         assertTrue(empty.isEmpty())
     }
 
-//    @Test
-//    fun `#show should return a string in the reverse order of the stack`() {
-//        val stack = Stack.Elem(3, Stack.Elem(2, Stack.Elem(1, Stack.Empty)))
-//
-//        assertEquals("1 2 3", stack.show())
-//    }
-//
-//    @Test
-//    fun `it should return a string in the reverse order of the stack (2)`() {
-//        val input = "1 2 3 * 5 + * * 6 5"
-//        val stack = Stack.from(input.split(" "))
-//
-//        assertEquals(input, stack.show())
-//    }
+    @Test
+    fun `#mkString should return a string in the reverse order of the stack`() {
+        val stack = Stack.Elem(3, Stack.Elem(2, Stack.Elem(1, Stack.Empty)))
+
+        println(stack.mkString(" "))
+
+        assertEquals("1 2 3", stack.mkString(" "))
+    }
+
+    @Test
+    fun `it should return a string in the reverse order of the stack (2)`() {
+        val input = "1 2 3 * 5 + * * 6 5"
+        val stack = Stack.from(input.split(" "))
+
+        assertEquals(input, stack.mkString(" "))
+    }
 }

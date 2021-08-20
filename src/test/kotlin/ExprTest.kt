@@ -1,4 +1,6 @@
 import Expr.Companion.show
+import org.junit.jupiter.api.assertThrows
+import java.math.BigDecimal
 import kotlin.test.*
 
 class ExprTest {
@@ -10,66 +12,65 @@ class ExprTest {
 
     @Test
     fun `#eval should perform basic algebraic operations`() {
-
         val sum = Expr.Add(one, two).eval()
-        assertEquals(3.0, sum)
+        assertEquals(BigDecimal("3.0").toDouble(), sum.toDouble())
 
         val minus = Expr.Subtract(two, one).eval()
-        assertEquals(1.0, minus)
+        assertEquals(BigDecimal("1").toDouble(), minus.toDouble())
 
         val minusOne = Expr.Subtract(one, two).eval()
-        assertEquals(-1.0, minusOne)
+        assertEquals(BigDecimal("-1").toDouble(), minusOne.toDouble())
 
         val times = Expr.Multiply(two, two).eval()
-        assertEquals(4.0, times)
+        assertEquals(BigDecimal("4").toDouble(), times.toDouble())
 
         val div = Expr.Divide(one, two).eval()
-        assertEquals(0.5, div)
+        assertEquals(BigDecimal("0.5").toDouble(), div.toDouble())
 
         val sqrt = Expr.Sqrt(four).eval()
-        assertEquals(2.0, sqrt)
+        assertEquals(BigDecimal("2.0").toDouble(), sqrt.toDouble())
     }
 
     @Test
-    fun `it should not have side-effects`() {
-        val nan = Expr.Const(Double.NaN)
-        val inf = Expr.Const(Double.POSITIVE_INFINITY)
+    fun `#eval should have side effects`() {
         val neg = Expr.Const(-2.0)
-
-        val div = Expr.Divide(one, zero).eval()
-        assertEquals(Double.POSITIVE_INFINITY, div)
-
-        val add = Expr.Add(one, nan).eval()
-        assertEquals(Double.NaN, add)
-
-        val sub = Expr.Subtract(inf, one).eval()
-        assertEquals(Double.POSITIVE_INFINITY, sub)
-
-        val sqrt = Expr.Sqrt(neg).eval()
-        assertEquals(Double.NaN, sqrt)
-
-        val nans = Expr.Add(nan, nan).eval()
-        assertEquals(Double.NaN, nans)
-
-        val wtf = Expr.Add(nan, inf).eval()
-        assertEquals(Double.NaN, wtf)
+    
+        assertThrows<ArithmeticException> {
+            Expr.Divide(one, zero).eval()
+        }
+    
+        assertThrows<ArithmeticException> {
+            Expr.Sqrt(neg).eval()
+        }
+    }
+    
+    @Test
+    fun `#equals should evaluate the expression as strings`() {
+        assertEquals(Expr.Const(3.33), Expr.Const("3.33"))
     }
 
     @Test
-    fun `#show should return evaluate an expresion before rendering`() {
+    fun `#show should evaluate the expression before rendering`() {
         val three = Expr.Add(one, two).show()
         assertEquals("3", three)
     }
 
     @Test
     fun `#show should return a single digit when the number as no decimals`() {
-        val one = Expr.Const(1.0).show()
+        val one = Expr.Const(BigDecimal("1.0")).show()
         assertEquals("1", one)
 
-        val half = Expr.Const(0.5).show()
-        assertEquals("0.5", half)
+        val half = Expr.Const(BigDecimal("0.5")).show()
+        assertEquals("0,5", half)
 
-        val pi = Expr.Const(Math.PI).show()
-        assertEquals("3.1415926536", pi)
+        val pi = Expr.Const(BigDecimal(Math.PI)).show()
+        assertEquals("3,1415926536", pi)
+    }
+    
+    @Test
+    fun `#show should not have side effects`() {
+        val neg = Expr.Const(-2.0)
+        assertEquals("NaN", Expr.Divide(one, zero).show())
+        assertEquals("NaN", Expr.Sqrt(neg).show())
     }
 }

@@ -1,11 +1,16 @@
+import java.math.BigDecimal
+import java.math.MathContext
 import java.text.DecimalFormat
-import kotlin.math.*
 
 /**
  * A lazy mathematical expression encoded as an algebraic data type (ADT).
  */
 sealed class Expr {
-    data class Const(val value: Double) : Expr()
+    data class Const(val value: BigDecimal) : Expr() {
+        constructor(value: Int) : this(BigDecimal(value.toString()))
+        constructor(value: Double) : this(BigDecimal(value.toString()))
+        constructor(value: String) : this(BigDecimal(value))
+    }
     data class Add(val x: Expr, val y: Expr) : Expr()
     data class Subtract(val x: Expr, val y: Expr) : Expr()
     data class Multiply(val x: Expr, val y: Expr) : Expr()
@@ -15,19 +20,24 @@ sealed class Expr {
     /**
      * Compute the final result of the expression
      */
-    fun eval(): Double = when(this) {
+    @Throws(ArithmeticException::class)
+    fun eval(): BigDecimal = when(this) {
         is Const -> value
         is Add -> x.eval() + y.eval()
         is Subtract -> x.eval() - y.eval()
         is Multiply -> x.eval() * y.eval()
         is Divide -> x.eval() / y.eval()
-        is Sqrt -> sqrt(x.eval())
+        is Sqrt -> x.eval().sqrt(MathContext.DECIMAL128)
     }
 
     companion object : Show<Expr> {
-
         private val fmt = DecimalFormat("#.##########")
 
-        override fun Expr.show(): String = fmt.format(this.eval())
+        override fun Expr.show(): String =
+            try {
+                fmt.format(this.eval())
+            } catch (e: ArithmeticException) {
+                "NaN"
+            }
     }
 }

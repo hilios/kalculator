@@ -3,27 +3,20 @@ import Expr.Companion.show
 import kotlin.system.exitProcess
 
 /**
- * Evaluate the input and execute the side-effects.
+ * Evaluate the input and execute the side effects.
  */
 tailrec fun runLoop(state: Stack<Expr>) {
     print("> ")
-    val input = readLine()?.split("""\s+""".toRegex()) ?: exitProcess(1)
-    val result = PostfixCalculator(state).eval(*input.filterNot { s -> s.isEmpty() }.toTypedArray())
-
-    val stack = when(result) {
-        is Right -> result.value
-        is Left -> when(val left = result.value) {
-            is TraceableError -> left.stack
-            else -> Stack.Empty
-        }
-    }
-
-    // print errors
-    if(result is Left) {
-        println(result.value.show())
-    }
-
+    val input = readLine()
+        ?.split("""\s+""".toRegex())
+        ?.filterNot { s -> s.isEmpty() }
+        ?: exitProcess(1)
+    
+    val (stack, result) = PostfixCalculator.parse(*input.toTypedArray()).get(state)
+    
+    if (result is Left) println("error: ${result.value.show()}")
     println("stack: ${stack.map { expr -> expr.show() }.mkString(" ")}")
+    
     runLoop(stack)
 }
 

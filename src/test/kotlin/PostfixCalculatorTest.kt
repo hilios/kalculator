@@ -4,15 +4,14 @@ class PostfixCalculatorTest {
 
     @Test
     fun `#eval should parse numbers from the input`() {
-        assertEquals(Right(Stack.one(Expr.Const(0.0))), PostfixCalculator().eval("0"))
-        assertEquals(Right(Stack.one(Expr.Const(0.0))), PostfixCalculator().eval("000"))
-        assertEquals(Right(Stack.one(Expr.Const(12.0))), PostfixCalculator().eval("012"))
-        assertEquals(Right(Stack.one(Expr.Const(123.0))), PostfixCalculator().eval("123"))
-        assertEquals(Right(Stack.one(Expr.Const(+123.0))), PostfixCalculator().eval("+123"))
-        assertEquals(Right(Stack.one(Expr.Const(-123.0))), PostfixCalculator().eval("-123"))
-        assertEquals(Right(Stack.one(Expr.Const(123.456))), PostfixCalculator().eval("123.456"))
-        assertEquals(Right(Stack.one(Expr.Const(123.456789))), PostfixCalculator().eval("123.456789"))
-
+        assertEquals(Stack.one(Expr.Const(0)), PostfixCalculator.parse("000").get(Stack.Empty).first)
+        assertEquals(Stack.one(Expr.Const(0.0)), PostfixCalculator.parse("0.0").get(Stack.Empty).first)
+        assertEquals(Stack.one(Expr.Const(12)), PostfixCalculator.parse("012").get(Stack.Empty).first)
+        assertEquals(Stack.one(Expr.Const(123)), PostfixCalculator.parse("123").get(Stack.Empty).first)
+        assertEquals(Stack.one(Expr.Const(+123)), PostfixCalculator.parse("+123").get(Stack.Empty).first)
+        assertEquals(Stack.one(Expr.Const(-123)), PostfixCalculator.parse("-123").get(Stack.Empty).first)
+        assertEquals(Stack.one(Expr.Const(123.456)), PostfixCalculator.parse("123.456").get(Stack.Empty).first)
+        assertEquals(Stack.one(Expr.Const(123.456789)), PostfixCalculator.parse("123.456789").get(Stack.Empty).first)
     }
 
     @Test
@@ -21,11 +20,11 @@ class PostfixCalculatorTest {
         val two = Expr.Const(2.0)
         val stack = Stack.one(one).add(two)
 
-        assertEquals(Right(Stack.one(Expr.Add(one, two))), PostfixCalculator(stack).eval("+"))
-        assertEquals(Right(Stack.one(Expr.Subtract(one, two))), PostfixCalculator(stack).eval("-"))
-        assertEquals(Right(Stack.one(Expr.Multiply(one, two))), PostfixCalculator(stack).eval("*"))
-        assertEquals(Right(Stack.one(Expr.Divide(one, two))), PostfixCalculator(stack).eval("/"))
-        assertEquals(Right(Stack.one(one).add(Expr.Sqrt(two))), PostfixCalculator(stack).eval("sqrt"))
+        assertEquals(Stack.one(Expr.Add(one, two)), PostfixCalculator.parse("+").get(stack).first)
+        assertEquals(Stack.one(Expr.Subtract(one, two)), PostfixCalculator.parse("-").get(stack).first)
+        assertEquals(Stack.one(Expr.Multiply(one, two)), PostfixCalculator.parse("*").get(stack).first)
+        assertEquals(Stack.one(Expr.Divide(one, two)), PostfixCalculator.parse("/").get(stack).first)
+        assertEquals(Stack.one(one).add(Expr.Sqrt(two)), PostfixCalculator.parse("sqrt").get(stack).first)
     }
 
     @Test
@@ -34,16 +33,16 @@ class PostfixCalculatorTest {
         val two = Expr.Const(2.0)
         val stack = Stack.one(one).add(two)
 
-        assertEquals(Right(Stack.Empty), PostfixCalculator(stack).eval("clear"))
+        assertEquals(Stack.Empty, PostfixCalculator.parse("clear").get(stack).first)
     }
 
     @Test
     fun `it should return on the left otherwise`() {
-        assert(PostfixCalculator().eval("Hello, World!") is Left<*, *>)
-        assert(PostfixCalculator().eval("^") is Left<*, *>)
-        assert(PostfixCalculator().eval("!") is Left<*, *>)
-        assert(PostfixCalculator().eval("sin") is Left<*, *>)
-        assert(PostfixCalculator().eval("cos") is Left<*, *>)
-        assert(PostfixCalculator().eval("1,234,567.00") is Left<*, *>)
+        assert(PostfixCalculator.parse("Hello, World!").run(Stack.Empty) is Left)
+        assert(PostfixCalculator.parse("^").run(Stack.Empty) is Left)
+        assert(PostfixCalculator.parse("!").run(Stack.Empty) is Left)
+        assert(PostfixCalculator.parse("sin").run(Stack.Empty) is Left)
+        assert(PostfixCalculator.parse("cos").run(Stack.Empty) is Left)
+        assert(PostfixCalculator.parse("1,234,567.00").run(Stack.Empty) is Left)
     }
 }

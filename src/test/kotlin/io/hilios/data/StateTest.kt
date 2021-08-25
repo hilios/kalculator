@@ -1,3 +1,5 @@
+package io.hilios.data
+
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

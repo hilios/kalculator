@@ -1,12 +1,12 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.4.10"
+    kotlin("jvm") version "1.5.21"
     application
 }
 
-group = "br.com.hilios"
-version = "0.1"
+group = "io.hilios"
+version = "1.0"
 
 repositories {
     mavenCentral()

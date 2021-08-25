@@ -1,5 +1,6 @@
-import Expr.Companion.show
-import org.junit.jupiter.api.assertThrows
+package io.hilios.calculator
+
+import io.hilios.calculator.Expr.Companion.show
 import java.math.BigDecimal
 import kotlin.test.*
 
@@ -13,33 +14,33 @@ class ExprTest {
     @Test
     fun `#eval should perform basic algebraic operations`() {
         val sum = Expr.Add(one, two).eval()
-        assertEquals(BigDecimal("3.0").toDouble(), sum.toDouble())
+        assertEquals(BigDecimal("3.0"), sum)
 
         val minus = Expr.Subtract(two, one).eval()
-        assertEquals(BigDecimal("1").toDouble(), minus.toDouble())
+        assertEquals(BigDecimal("1.0"), minus)
 
         val minusOne = Expr.Subtract(one, two).eval()
-        assertEquals(BigDecimal("-1").toDouble(), minusOne.toDouble())
+        assertEquals(BigDecimal("-1.0"), minusOne)
 
         val times = Expr.Multiply(two, two).eval()
-        assertEquals(BigDecimal("4").toDouble(), times.toDouble())
+        assertEquals(BigDecimal("4.00"), times)
 
         val div = Expr.Divide(one, two).eval()
-        assertEquals(BigDecimal("0.5").toDouble(), div.toDouble())
+        assertEquals(BigDecimal("0.5"), div)
 
         val sqrt = Expr.Sqrt(four).eval()
-        assertEquals(BigDecimal("2.0").toDouble(), sqrt.toDouble())
+        assertEquals(BigDecimal("2"), sqrt)
     }
 
     @Test
     fun `#eval should have side effects`() {
         val neg = Expr.Const(-2.0)
-    
-        assertThrows<ArithmeticException> {
+        
+        assertFailsWith<ArithmeticException> {
             Expr.Divide(one, zero).eval()
         }
     
-        assertThrows<ArithmeticException> {
+        assertFailsWith<ArithmeticException> {
             Expr.Sqrt(neg).eval()
         }
     }
@@ -57,13 +58,13 @@ class ExprTest {
 
     @Test
     fun `#show should return a single digit when the number as no decimals`() {
-        val one = Expr.Const(BigDecimal("1.0")).show()
+        val one = Expr.Const("1.0").show()
         assertEquals("1", one)
 
-        val half = Expr.Const(BigDecimal("0.5")).show()
+        val half = Expr.Const("0.5").show()
         assertEquals("0,5", half)
 
-        val pi = Expr.Const(BigDecimal(Math.PI)).show()
+        val pi = Expr.Const(Math.PI).show()
         assertEquals("3,1415926536", pi)
     }
     

@@ -1,4 +1,11 @@
+package io.hilios.data
+
+import io.hilios.data.Either.Companion.catchExceptions
+import io.hilios.data.Either.Companion.fromOption
 import kotlin.test.*
+import io.hilios.data.Either.Right
+import io.hilios.data.Either.Left
+
 
 class EitherTest {
     @Test
@@ -78,18 +85,18 @@ class EitherTest {
     // Companion object
     @Test
     fun `#catchExceptions return an either that wrap any exception as the left value`() {
-        val fail = Either.catchExceptions { throw Exception() }
-        assertTrue(fail is Left<*, *>)
+        val fail = catchExceptions { throw Exception() }
+        assertTrue(fail is Left)
 
-        val right123 = Either.catchExceptions { 123 }
+        val right123 = catchExceptions { 123 }
         assertEquals(Right(123), right123)
     }
 
     @Test
     fun `#fromOption should lift some optional value into an either`(){
-        val ok = Either.fromOption("ok", { NullPointerException() })
-        val nok = Either.fromOption(null, { "nok" })
-
+        val ok = fromOption("ok") { NullPointerException() }
+        val nok = fromOption(null) { "nok" }
+    
         assertEquals(Right("ok"), ok)
         assertEquals(Left("nok"), nok)
     }

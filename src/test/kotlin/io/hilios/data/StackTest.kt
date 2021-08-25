@@ -1,3 +1,5 @@
+package io.hilios.data
+
 import kotlin.test.*
 
 class StackTest {

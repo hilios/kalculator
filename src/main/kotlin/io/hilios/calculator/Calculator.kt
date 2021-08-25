@@ -1,14 +1,30 @@
+package io.hilios.calculator
+
+import io.hilios.data.Either
+import io.hilios.data.Either.Right
+import io.hilios.data.Either.Left
+import io.hilios.data.Stack
+import io.hilios.data.State
+import io.hilios.data.append
+import io.hilios.data.drop
+import io.hilios.data.flatMap
+import io.hilios.data.get
+
+/**
+ * The memory is just a function from the current [Stack] to [Either] a [CalculatorError] or the updated [Stack], thus,
+ * a simple type alias of the [State] monad.
+ */
 typealias Memory<A> = State<Stack<A>, Either<CalculatorError, Stack<A>>>
 
 /**
- * The base structure of a calculator, which is a string parser and function that transforms the memory that can either
- * succeed or fail.
+ * The base structure of a calculator, which is, in essence, a string parser and a transformation function that
+ * manipulate the inner memory and can either succeed or fail.
  *
- * The memory is defined as a State monad that transforms a Stack of element and returns either an [CalculatorError] or
- * the modified part of the stack.
+ * The [Memory] is defined as a [State] monad that transforms a [Stack] of elements and returns either an
+ * [CalculatorError] or the modified part of the stack.
  *
  * On the companion object are provides helper function such as that enables the calculator implementation to create
- * complex operations that interacts with the calculator memory directly.
+ * complex operations that interacts with the calculator [Memory] directly.
  */
 fun interface Calculator<A> {
     fun parse(input: String): Memory<A>
@@ -35,7 +51,7 @@ fun interface Calculator<A> {
 
     companion object {
         /**
-         * Manipulates the stack without any side effects (pure function)
+         * Manipulates the current [Stack] in [Memory] without any side effects (pure function)
          */
         fun <A> pure(f: (Stack<A>) -> Stack<A>): Memory<A> = Memory {
             val stack = f(it)
@@ -43,7 +59,7 @@ fun interface Calculator<A> {
         }
 
         /**
-         * Apply a transformation with side effects to the stack and append all elements to the memory and if it fails
+         * Apply a transformation with side effects to the stack and append all elements to the [Memory] and if it fails
          * just returns the original stack
          */
         fun <A> fromEither(f: (Stack<A>) -> Either<CalculatorError, Stack<A>>): Memory<A> = Memory { stack ->
@@ -54,7 +70,7 @@ fun interface Calculator<A> {
         }
 
         /**
-         * Apply the transformation function on the first element of the stack or fail if there is no element
+         * Apply the transformation function on the first element of the [Stack] or fail if there is no element
          */
         fun <A> requires1(f: (A) -> Stack<A>): Memory<A> = Memory { stack ->
             val x = stack.get(0) ?: return@Memory Pair(stack, Left(CalculatorError.InsufficientParametersError))
@@ -63,7 +79,8 @@ fun interface Calculator<A> {
         }
 
         /**
-         * Apply the transformation function on the first two elements of the stack or fail if elements are
+         * Apply the transformation function on the first two elements of the [Stack] or fail if there are not enough
+         * elements in it
          */
         fun <A> requires2(f: (A, A) -> Stack<A>): Memory<A> = Memory { stack ->
             val x = stack.get(1) ?: return@Memory Pair(stack, Left(CalculatorError.InsufficientParametersError))

@@ -1,3 +1,5 @@
+package io.hilios.data
+
 /**
  * An immutable stack, last in first out, implementation
  */

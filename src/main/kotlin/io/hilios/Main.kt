@@ -1,23 +1,32 @@
-import CalculatorError.Companion.show
-import Expr.Companion.show
+import io.hilios.calculator.CalculatorError.Companion.show
+import io.hilios.calculator.Expr
+import io.hilios.calculator.Expr.Companion.show
+import io.hilios.PostfixCalculator
+import io.hilios.data.Either.Left
+import io.hilios.data.Stack
+import io.hilios.data.map
+import io.hilios.data.mkString
 import kotlin.system.exitProcess
 
 /**
  * Evaluate the input and execute the side effects.
  */
-tailrec fun runLoop(state: Stack<Expr>) {
+tailrec fun runCalculator(state: Stack<Expr>) {
     print("> ")
     val input = readLine()
         ?.split("""\s+""".toRegex())
-        ?.filterNot { s -> s.isEmpty() }
+        ?.filterNot { it.isEmpty() }
+        ?.toTypedArray()
         ?: exitProcess(1)
-    
-    val (stack, result) = PostfixCalculator.parse(*input.toTypedArray()).get(state)
-    
+
+    val (stack, result) = PostfixCalculator.parse(*input).get(state)
+
     if (result is Left) println("error: ${result.value.show()}")
-    println("stack: ${stack.map { expr -> expr.show() }.mkString(" ")}")
-    
-    runLoop(stack)
+
+    val humanized = stack.map { expr -> expr.show() }.mkString(" ")
+    println("stack: $humanized")
+
+    runCalculator(stack)
 }
 
 fun main(args: Array<String>) {
@@ -33,6 +42,6 @@ fun main(args: Array<String>) {
 
     """.trimIndent())
 
-    runLoop(Stack.Empty)
+    runCalculator(Stack.Empty)
     exitProcess(0)
 }

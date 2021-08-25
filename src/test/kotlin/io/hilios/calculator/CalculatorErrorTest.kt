@@ -1,4 +1,6 @@
-import CalculatorError.Companion.show
+package io.hilios.calculator
+
+import io.hilios.calculator.CalculatorError.Companion.show
 import kotlin.test.*
 
 class CalculatorErrorTest {

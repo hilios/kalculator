@@ -1,3 +1,13 @@
+package io.hilios
+
+import io.hilios.calculator.Calculator
+import io.hilios.calculator.CalculatorError
+import io.hilios.calculator.Expr
+import io.hilios.calculator.Memory
+import io.hilios.data.Either
+import io.hilios.data.Stack
+import io.hilios.data.add
+
 /**
  * A reverse polish notation calculator (a.k.a. Postfix) implementation based on a stack and a lazy mathematical
  * expression.
@@ -14,20 +24,23 @@ object PostfixCalculator : Calculator<Expr> {
         "*" -> Calculator.requires2 { x, y -> Stack.one(Expr.Multiply(x, y)) }
         "/" -> Calculator.requires2 { x, y -> Stack.one(Expr.Divide(x, y)) }
         "sqrt" -> Calculator.requires1 { x -> Stack.one(Expr.Sqrt(x)) }
-        "undo" -> Calculator.requires1 {
-            // Unfolds an expression into its original bits.
-            when(it) {
-                is Expr.Const -> Stack.Empty
-                is Expr.Add -> Stack.one(it.x).add(it.y)
-                is Expr.Subtract -> Stack.one(it.x).add(it.y)
-                is Expr.Multiply -> Stack.one(it.x).add(it.y)
-                is Expr.Divide -> Stack.one(it.x).add(it.y)
-                is Expr.Sqrt -> Stack.one(it.x)
-            }
-        }
-        "clear" -> Calculator.pure  { Stack.Empty }
+        "undo" -> Calculator.requires1(::undo)
+        "clear" -> Calculator.pure { Stack.Empty }
         else -> Calculator.fromEither {
             Either.catchExceptions { Stack.one(Expr.Const(input)) }.leftMap { CalculatorError.InputError(input) }
         }
     }
+
+    /**
+     * Unfolds an expression into its original bits.
+     */
+    private fun undo(expr: Expr): Stack<Expr> =
+        when (expr) {
+            is Expr.Const -> Stack.Empty
+            is Expr.Add -> Stack.one(expr.x).add(expr.y)
+            is Expr.Subtract -> Stack.one(expr.x).add(expr.y)
+            is Expr.Multiply -> Stack.one(expr.x).add(expr.y)
+            is Expr.Divide -> Stack.one(expr.x).add(expr.y)
+            is Expr.Sqrt -> Stack.one(expr.x)
+        }
 }

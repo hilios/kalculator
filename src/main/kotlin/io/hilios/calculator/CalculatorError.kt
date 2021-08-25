@@ -1,3 +1,7 @@
+package io.hilios.calculator
+
+import io.hilios.data.Show
+
 /**
  * An ADT of all output errors of the calculator.
  */
